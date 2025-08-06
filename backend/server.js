@@ -2,13 +2,16 @@ const express=require('express');
 const cors =require('cors');
 const main = require('./routers/main');
 const connectDB = require("./config/config");
+const User = require('./routers/user');
 require('dotenv').config({ path: __dirname + '/.env' });
 
 
 const port = process.env.PORT;
+app.use(cookieParser());
 
 const app = express();
 app.use(express.json());
+
 
 connectDB();
 
@@ -25,6 +28,7 @@ app.use(cors({
 }));
 
 app.use('/main',main);
+app.use('/user',user);
 
 app.use((err, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;

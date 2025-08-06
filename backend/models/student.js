@@ -15,11 +15,23 @@ const StudentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  class: {
+  year : {
+    type : Number ,
+    required : true
+  },
+  department : {
+    type : String,
+    required : true
+  },
+  dob :{
+    type : Date,
+    required : true
+  },
+  StudentClass: {
     type: String,
     required : true
   },
-  attendence: [{
+  attendance: [{
      date: {
       type: Date,
       required: true,
@@ -38,7 +50,6 @@ const StudentSchema = new mongoose.Schema({
   }],
   faceid :{
     type : String,
-    required : true
   }
 });
 
