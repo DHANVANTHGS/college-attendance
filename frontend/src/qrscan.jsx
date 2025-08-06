@@ -50,6 +50,20 @@ const QRScannerPage = () => {
         (decodedText) => {
           setScannedData(decodedText);
           stopScanner();
+    /*fetch("http://localhost:5000/api/scan", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ data: decodedText }),
+  })
+    .then((res) => res.json())
+    .then((response) => {
+      console.log("Backend response:", response);
+    })
+    .catch((err) => {
+      console.error("Error sending data to backend:", err);
+    });*/
         },
         () => {}
       );
@@ -108,8 +122,25 @@ const QRScannerPage = () => {
   }, [scannerActive, selectedCameraId]);
 
   return (
-    <div className="min-h-screen bg-gray-100 px-6 sm:px-8 md:px-12 flex justify-center pt-10" id="kl">
-      <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-md text-center" id="hg">
+    <div className="min-h-screen relative bg-gradient-to-br from-indigo-900 to-teal-900 px-6 sm:px-8 md:px-12 flex justify-center pt-10" id="kl">
+
+      {/* Responsive background image */}
+      <div
+  className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none"
+  style={{
+    backgroundImage: "url('/bg-shape.png')",
+    transform: 'scale(1.2)'
+  }}
+/>
+
+<div className="relative z-10 w-full max-w-md p-6 sm:p-8 rounded-xl shadow-2xl text-center border border-gray-300 bg-white"
+
+  /*style={{
+    backgroundColor: 'rgba(255, 255, 255, 0.95)', // Nearly solid white
+    color: '#000', // Ensure text is black and sharp
+  }}*/
+>
+
         <h2 className="text-2xl font-bold mb-4">QR Code Scanner</h2>
 
         {availableCameras.length > 1 && (
