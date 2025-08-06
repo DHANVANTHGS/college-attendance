@@ -37,6 +37,7 @@ const QRScannerPage = () => {
   };
   const sendSelfieToBackend = async (base64Image) => {
   try {
+    
     const response = await fetch("http://localhost:5000/api/selfie", {
       method: "POST",
       headers: {
@@ -63,7 +64,7 @@ const QRScannerPage = () => {
     console.error("Failed to send selfie:", error);
     setFeedbackMessage("❌ Error sending selfie.");
     setTimeout(() => {
-      window.location.href = "/";
+      window.location.href = "/scan";
     }, 2000);
   }
 };
@@ -106,7 +107,7 @@ const QRScannerPage = () => {
     // Display error message if fetch fails (e.g., backend is down)
     setFeedbackMessage("Failed to connect to backend");
     setTimeout(() => {
-      window.location.href = "/";
+      window.location.href = "/scan";
     }, 2500);
   }
 };

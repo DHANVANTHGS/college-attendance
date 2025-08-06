@@ -1,15 +1,46 @@
 import React, { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 const LoginPage = () => {
   const [role, setRole] = useState("Student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    console.log("Logging in with:", { role, email, password });
-    // Add your backend login logic here
+  const handleLogin = async (e) => {
+  e.preventDefault();
+
+  const response = await fetch("http://localhost:5000/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  const data = await response.json();
+
+  if (data.status === "success") {
+    const { department, roomno } = data;
+    navigate(`/students/${department}/${roomno}`);
+  } else {
+    // handle error
+  }
+};
+/*const handleLogin = async (e) => {
+  e.preventDefault();
+
+  // Simulated response from backend
+  const dummyResponse = {
+    status: "success",
+    department: "ECE",
+    roomno: "101",
   };
+
+  // Simulate async delay like a real fetch
+  setTimeout(() => {
+    const { department, roomno } = dummyResponse;
+    navigate(`/students/${department}/${roomno}`);
+  }, 500);
+};*/
+
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 to-teal-900 px-6 overflow-hidden">
