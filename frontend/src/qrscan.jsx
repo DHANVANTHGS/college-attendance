@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
-import "./qrscan.css"
 
 const QRScannerPage = () => {
   const scannerRef = useRef(null);
