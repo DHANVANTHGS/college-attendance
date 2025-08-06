@@ -2,7 +2,9 @@ const express=require('express');
 const cors =require('cors');
 const main = require('./routers/main');
 const connectDB = require("./config/config");
-const User = require('./routers/user');
+const staff = require('./routers/staff');
+const system = require('./routers/system');
+const student = require('./routers/student');
 require('dotenv').config({ path: __dirname + '/.env' });
 
 
@@ -28,7 +30,9 @@ app.use(cors({
 }));
 
 app.use('/main',main);
-app.use('/user',user);
+app.use('/staff',staff);
+app.use('/system',system);
+app.use('/student',student);
 
 app.use((err, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;

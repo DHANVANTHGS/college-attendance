@@ -1,11 +1,10 @@
 const jwt=require('jsonwebtoken');  
 const path=require("path");  
 const express = require('express');
-const faculty = require('../controllers/staff');
+const system = require('../controllers/system');
 const expressAsyncHandler=require('express-async-handler');
 
-
-const userAuth = expressAsyncHandler(async(req,res,next)=>{
+const sysAuth = expressAsyncHandler(async(req,res,next)=>{
   const token = req.cookies.token;
 
   if (!token) {
@@ -20,7 +19,7 @@ const userAuth = expressAsyncHandler(async(req,res,next)=>{
         throw new Error ("Unautherized Access");
   }
   else {
-    const check = await faculty.findOne({mail:mail});
+    const check = await system.findOne({mail:mail});
     if(!check){
         res.status(401);
         throw new Error ("unauthorized Access");

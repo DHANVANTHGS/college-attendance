@@ -1,8 +1,8 @@
 const express= require('express');
-const main = require('../controllers/main');
+const student = require('../controllers/rq');
 const router = express.Router();
 
-router.post('/login',main.login);
+router.post('/putattendence',student);
 
 
 module.exports = router;
