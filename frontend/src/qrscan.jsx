@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
+import SelfieCapture from "./frontcam.jsx";
+
+
 
 const QRScannerPage = () => {
   const scannerRef = useRef(null);
@@ -12,6 +15,10 @@ const QRScannerPage = () => {
   const [scannedData, setScannedData] = useState("");
   const [scannerActive, setScannerActive] = useState(false);
   const [error, setError] = useState("");
+  const [showSelfie, setShowSelfie] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+
+
 
   const fetchCameras = async () => {
     try {
@@ -28,28 +35,82 @@ const QRScannerPage = () => {
       setError("Unable to access cameras.");
     }
   };
-  const sendToBackend = (qrData, latitude, longitude) => {
-  fetch("http://localhost:5000/api/scan", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      qrData,
-      location: {
-        latitude,
-        longitude,
+  const sendSelfieToBackend = async (base64Image) => {
+  try {
+    const response = await fetch("http://localhost:5000/api/selfie", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("Backend response:", data);
-    })
-    .catch((err) => {
-      console.error("Error sending data to backend:", err,latitude,longitude);
+      body: JSON.stringify({ image: base64Image }),
     });
+
+    const data = await response.json();
+    console.log("Selfie response:", data);
+
+    if (data.status === true) {
+      setFeedbackMessage("✅ Attendance marked successfully!");
+    } else {
+      setFeedbackMessage("❌ Failed to mark attendance.");
+    }
+
+    // Wait 2 seconds, then go to login page
+    setTimeout(() => {
+      window.location.href = "/"; // 👈 change this to your login page route if different
+    }, 2000);
+    
+  } catch (error) {
+    console.error("Failed to send selfie:", error);
+    setFeedbackMessage("❌ Error sending selfie.");
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 2000);
+  }
 };
+
+
+  const sendToBackend = async (qrData, latitude, longitude) => {
+  try {
+    const response = await fetch("http://localhost:5000/api/scan", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        qrData,
+        location: {
+          latitude,
+          longitude,
+        },
+      }),
+    });
+
+    const data = await response.json();
+    console.log("Backend response:", data);
+    if (data.status === true) {
+      // Backend says: OK, now take a selfie
+      setShowSelfie(true);  // 👈 Define this function separately
+    } else {
+      // Status is false – show "Not in Range"
+      setFeedbackMessage("Not in Range");
+
+      // Redirect to login page after 2.5 seconds
+      setTimeout(() => {
+        window.location.href = "/"; // or use a router navigate() if using React Router
+      }, 2500);
+    }
+
+  } catch (err) {
+    console.error("Error sending data to backend:", err);
+
+    // Display error message if fetch fails (e.g., backend is down)
+    setFeedbackMessage("Failed to connect to backend");
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 2500);
+  }
+};
+
 
 
   const startScanner = async () => {
@@ -143,7 +204,19 @@ const QRScannerPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scannerActive, selectedCameraId]);
 
+  if (feedbackMessage) {
   return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 text-center">
+      <div className="bg-white p-6 rounded shadow-md text-lg font-medium">
+        {feedbackMessage}
+      </div>
+    </div>
+  );
+}
+
+  return showSelfie ? (
+  <SelfieCapture onCapture={sendSelfieToBackend} />
+):(
     <div className="min-h-screen relative bg-gradient-to-br from-indigo-900 to-teal-900 px-6 sm:px-8 md:px-12 flex justify-center pt-10" id="kl">
 
       {/* Responsive background image */}
