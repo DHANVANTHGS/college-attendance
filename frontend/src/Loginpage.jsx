@@ -1,32 +1,79 @@
 import React, { useState } from "react";
-import "./login.css";
-
+import { useNavigate } from "react-router-dom";
 const LoginPage = () => {
   const [role, setRole] = useState("Student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    console.log("Logging in with:", { role, email, password });
-    // Add your backend login logic here
+  const handleLogin = async (e) => {
+  e.preventDefault();
+
+  const response = await fetch("http://localhost:5000/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  const data = await response.json();
+
+  if (data.status === "success") {
+    const { department, roomno } = data;
+    navigate(`/students/${department}/${roomno}`);
+  } else {
+    // handle error
+  }
+};
+/*const handleLogin = async (e) => {
+  e.preventDefault();
+
+  // Simulated response from backend
+  const dummyResponse = {
+    status: "success",
+    department: "ECE",
+    roomno: "101",
   };
 
+  // Simulate async delay like a real fetch
+  setTimeout(() => {
+    const { department, roomno } = dummyResponse;
+    navigate(`/students/${department}/${roomno}`);
+  }, 500);
+};*/
+
+
   return (
-    
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-6" id="mm">
-      <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-md" id="jk">
-        <h2 className="text-2xl font-bold mb-6 text-center" id="login">Login</h2>
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 to-teal-900 px-6 overflow-hidden">
+      
+      {/* Responsive background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40  pointer-events-none"
+        style={{
+  backgroundImage: "url('/bg-shape.png')",
+  backgroundSize: 'cover',
+  transform: 'scale(1)'
+}}
+
+      />
+
+      {/* Login Card */}
+<div
+  className="z-10 w-full max-w-sm backdrop-blur-md p-6 sm:p-8 rounded-xl shadow-xl text-white text-center"
+  style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }} // 0.7 = 70% opaque
+>
+
+        <h2 className="text-4xl font-bold mb-6">Log In</h2>
+
         <form onSubmit={handleLogin} className="space-y-4">
           {/* Role Dropdown */}
-          <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700">Role</label>
+          <div className="text-left">
+            <label htmlFor="role" className="block text-sm mb-1">Role</label>
             <select
               id="role"
               name="role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              className="w-full px-4 py-2 rounded-full text-black focus:outline-none"
               required
             >
               <option>Student</option>
@@ -36,50 +83,56 @@ const LoginPage = () => {
           </div>
 
           {/* Email Input */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+          <div className="text-left">
+            <label htmlFor="email" className="block text-sm mb-1">Email</label>
             <input
               type="email"
               id="email"
               name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              className="w-full px-4 py-2 rounded-full text-black focus:outline-none"
               placeholder="you@example.com"
               required
             />
           </div>
 
           {/* Password Input */}
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+          <div className="text-left">
+            <label htmlFor="password" className="block text-sm mb-1">Password</label>
             <input
               type="password"
               id="password"
               name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              className="w-full px-4 py-2 rounded-full text-black focus:outline-none"
               placeholder="********"
               required
             />
-          </div>
-
-          {/* Forgot Password */}
-          <div className="text-right">
-            <a href="/forgot-password" className="text-sm text-blue-500 hover:underline">
-              Forgot Password?
-            </a>
+            <div className="text-right mt-1">
+              <a href="/forgot-password" className="text-sm text-gray-300 hover:underline">
+                Forgot Password?
+              </a>
+            </div>
           </div>
 
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
-          >
-            Login
+          className=" w-full bg-gradient-to-r from-green-500 to-yellow-500 hover:from-red-500 hover:to-green-500 text-white px-6 py-2 rounded-full font-bold transition duration-300">
+
+          LOGIN
           </button>
         </form>
+
+        {/* Register Link */}
+        <p className="mt-4 text-sm">
+          New here?{" "}
+          <a href="#" className="text-teal-300 hover:underline">
+            Register Here
+          </a>
+        </p>
       </div>
     </div>
   );

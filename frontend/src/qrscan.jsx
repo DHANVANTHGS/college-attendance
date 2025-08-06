@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
-import "./qrscan.css"
+import SelfieCapture from "./frontcam.jsx";
+
+
 
 const QRScannerPage = () => {
   const scannerRef = useRef(null);
@@ -13,6 +15,10 @@ const QRScannerPage = () => {
   const [scannedData, setScannedData] = useState("");
   const [scannerActive, setScannerActive] = useState(false);
   const [error, setError] = useState("");
+  const [showSelfie, setShowSelfie] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+
+
 
   const fetchCameras = async () => {
     try {
@@ -29,6 +35,84 @@ const QRScannerPage = () => {
       setError("Unable to access cameras.");
     }
   };
+  const sendSelfieToBackend = async (base64Image) => {
+  try {
+    
+    const response = await fetch("http://localhost:5000/api/selfie", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ image: base64Image }),
+    });
+
+    const data = await response.json();
+    console.log("Selfie response:", data);
+
+    if (data.status === true) {
+      setFeedbackMessage("✅ Attendance marked successfully!");
+    } else {
+      setFeedbackMessage("❌ Failed to mark attendance.");
+    }
+
+    // Wait 2 seconds, then go to login page
+    setTimeout(() => {
+      window.location.href = "/"; // 👈 change this to your login page route if different
+    }, 2000);
+    
+  } catch (error) {
+    console.error("Failed to send selfie:", error);
+    setFeedbackMessage("❌ Error sending selfie.");
+    setTimeout(() => {
+      window.location.href = "/scan";
+    }, 2000);
+  }
+};
+
+
+  const sendToBackend = async (qrData, latitude, longitude) => {
+  try {
+    const response = await fetch("http://localhost:5000/api/scan", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        qrData,
+        location: {
+          latitude,
+          longitude,
+        },
+      }),
+    });
+
+    const data = await response.json();
+    console.log("Backend response:", data);
+    if (data.status === true) {
+      // Backend says: OK, now take a selfie
+      setShowSelfie(true);  // 👈 Define this function separately
+    } else {
+      // Status is false – show "Not in Range"
+      setFeedbackMessage("Not in Range");
+
+      // Redirect to login page after 2.5 seconds
+      setTimeout(() => {
+        window.location.href = "/"; // or use a router navigate() if using React Router
+      }, 2500);
+    }
+
+  } catch (err) {
+    console.error("Error sending data to backend:", err);
+
+    // Display error message if fetch fails (e.g., backend is down)
+    setFeedbackMessage("Failed to connect to backend");
+    setTimeout(() => {
+      window.location.href = "/scan";
+    }, 2500);
+  }
+};
+
+
 
   const startScanner = async () => {
     setError("");
@@ -50,6 +134,20 @@ const QRScannerPage = () => {
         (decodedText) => {
           setScannedData(decodedText);
           stopScanner();
+    navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      console.log(latitude,longitude)
+      
+      sendToBackend(decodedText, latitude, longitude);
+    },
+    (error) => {
+      console.warn("Geolocation denied or failed:", error);
+      sendToBackend(decodedText, null, null); // Or handle differently
+    }
+  );
+
         },
         () => {}
       );
@@ -107,9 +205,38 @@ const QRScannerPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scannerActive, selectedCameraId]);
 
+  if (feedbackMessage) {
   return (
-    <div className="min-h-screen bg-gray-100 px-6 sm:px-8 md:px-12 flex justify-center pt-10" id="kl">
-      <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-md text-center" id="hg">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 text-center">
+      <div className="bg-white p-6 rounded shadow-md text-lg font-medium">
+        {feedbackMessage}
+      </div>
+    </div>
+  );
+}
+
+  return showSelfie ? (
+  <SelfieCapture onCapture={sendSelfieToBackend} />
+):(
+    <div className="min-h-screen relative bg-gradient-to-br from-indigo-900 to-teal-900 px-6 sm:px-8 md:px-12 flex justify-center pt-10" id="kl">
+
+      {/* Responsive background image */}
+      <div
+  className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none"
+  style={{
+    backgroundImage: "url('/bg-shape.png')",
+    transform: 'scale(1.2)'
+  }}
+/>
+
+<div className="relative z-10 w-full max-w-md p-6 sm:p-8 rounded-xl shadow-2xl text-center border border-gray-300 bg-white"
+
+  /*style={{
+    backgroundColor: 'rgba(255, 255, 255, 0.95)', // Nearly solid white
+    color: '#000', // Ensure text is black and sharp
+  }}*/
+>
+
         <h2 className="text-2xl font-bold mb-4">QR Code Scanner</h2>
 
         {availableCameras.length > 1 && (
