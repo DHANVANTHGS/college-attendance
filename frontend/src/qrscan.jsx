@@ -28,6 +28,29 @@ const QRScannerPage = () => {
       setError("Unable to access cameras.");
     }
   };
+  const sendToBackend = (qrData, latitude, longitude) => {
+  fetch("http://localhost:5000/api/scan", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      qrData,
+      location: {
+        latitude,
+        longitude,
+      },
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("Backend response:", data);
+    })
+    .catch((err) => {
+      console.error("Error sending data to backend:", err,latitude,longitude);
+    });
+};
+
 
   const startScanner = async () => {
     setError("");
@@ -49,20 +72,20 @@ const QRScannerPage = () => {
         (decodedText) => {
           setScannedData(decodedText);
           stopScanner();
-    /*fetch("http://localhost:5000/api/scan", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+    navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      console.log(latitude,longitude)
+      
+      sendToBackend(decodedText, latitude, longitude);
     },
-    body: JSON.stringify({ data: decodedText }),
-  })
-    .then((res) => res.json())
-    .then((response) => {
-      console.log("Backend response:", response);
-    })
-    .catch((err) => {
-      console.error("Error sending data to backend:", err);
-    });*/
+    (error) => {
+      console.warn("Geolocation denied or failed:", error);
+      sendToBackend(decodedText, null, null); // Or handle differently
+    }
+  );
+
         },
         () => {}
       );
