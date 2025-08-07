@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+/*import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 const StudentList = () => {
@@ -12,10 +12,15 @@ const StudentList = () => {
     const fetchStudents = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/students?department=${department}&roomno=${roomno}`
+          `http://localhost:5000/api/staff?department=${department}&roomno=${roomno}`,
+            {
+          method: 'GET',             // Explicit method
+          credentials: 'include',    // Send cookies with the request
+        }
         );
         const data = await response.json();
         setStudents(data.students || []);
+
       } catch (error) {
         console.error("Error fetching students:", error);
       } finally {
@@ -62,8 +67,8 @@ const StudentList = () => {
   );
 };
 
-export default StudentList;
-/*
+export default StudentList;*/
+
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -145,5 +150,5 @@ const StudentList = () => {
   );
 };
 
-export default StudentList;*/
+export default StudentList;
 
