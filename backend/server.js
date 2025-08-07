@@ -44,7 +44,9 @@ app.use((err, req, res, next) => {
     message: err.message || 'Server Error',
   });
 });
-
+app.get("/",(req,res) =>{
+  res.send("Server is ready")
+})
 app.listen(port,(req,res)=>{
     console.log(`server is running at http://localhost:${port}`);
 })
