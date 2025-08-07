@@ -28,4 +28,4 @@ const sysAuth = expressAsyncHandler(async(req,res,next)=>{
   }
 })
 
-module.exports = userAuth;
+module.exports = sysAuth;

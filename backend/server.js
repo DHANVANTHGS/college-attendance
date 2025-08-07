@@ -5,14 +5,16 @@ const connectDB = require("./config/config");
 const staff = require('./routers/staff');
 const system = require('./routers/system');
 const student = require('./routers/student');
+const cookieParser= require('cookie-parser');
 require('dotenv').config({ path: __dirname + '/.env' });
 
 
 const port = process.env.PORT;
-app.use(cookieParser());
+
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 
 connectDB();
@@ -32,7 +34,7 @@ app.use(cors({
 app.use('/main',main);
 app.use('/staff',staff);
 app.use('/system',system);
-app.use('/student',student);
+//app.use('/student',student);
 
 app.use((err, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;

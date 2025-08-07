@@ -1,7 +1,7 @@
 const jwt=require('jsonwebtoken');  
 const path=require("path");  
 const express = require('express');
-const faculty = require('../controllers/staff');
+const faculty = require('../models/faculty');
 const expressAsyncHandler=require('express-async-handler');
 
 

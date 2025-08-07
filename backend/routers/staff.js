@@ -1,10 +1,10 @@
 const express= require('express');
 const staff = require('../controllers/staff');
-const auth = require('../middlewares/auth');
+const userAuth = require('../middlewares/auth');
 const router = express.Router();
 
-router.post('/addUser',auth.userAuth,staff.addUser);
-router.get('/attendance',auth.userAuth,staff.attendance);
-router.put('updateStatus',auth.userAuth,staff.updateAttendance);
+router.post('/addUser',userAuth,staff.addUser);
+router.get('/attendance',userAuth,staff.attendance);
+router.put('/updateStatus',userAuth,staff.updateAttendance);
 
 module.exports = router;
