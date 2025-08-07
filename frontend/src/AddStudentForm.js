@@ -1,0 +1,138 @@
+
+import './AddStudentForm.css'
+import React, { useState } from 'react';
+import './App.css'; // Make sure this file is created
+
+function AddStudentForm() {
+  const [showForm, setShowForm] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+
+  const [formData, setFormData] = useState({
+    name: '',
+    dob: '',
+    email: '',
+    password: '',
+    department: '',
+    year: ''
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+
+    if (name === 'email') setEmailError(false);
+    if (name === 'password') setPasswordError(false);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const isEmailValid = formData.email.endsWith('@citchennai.net');
+    const isPasswordValid = formData.password.trim().length >= 6;
+
+    setEmailError(!isEmailValid);
+    setPasswordError(!isPasswordValid);
+
+    if (!isEmailValid || !isPasswordValid) return;
+
+    console.log("Student data submitted:", formData);
+    alert("Student added successfully!");
+    setShowForm(false);
+    clearForm();
+  };
+
+  const clearForm = () => {
+    setFormData({
+      name: '',
+      dob: '',
+      email: '',
+      password: '',
+      department: '',
+      year: ''
+    });
+    setEmailError(false);
+    setPasswordError(false);
+  };
+
+  return (
+    <div className="page">
+      {!showForm ? (
+        <button className="add-student-button" onClick={() => setShowForm(true)}>
+          Add Student
+        </button>
+      ) : (
+        <div className="form-container">
+          <form className="add-student-form" onSubmit={handleSubmit}>
+            <h2>Add New Student</h2>
+
+            <label>Name:
+              <input name="name" value={formData.name} onChange={handleChange} required />
+            </label>
+
+            <label>Date of Birth:
+              <input type="date" name="dob" value={formData.dob} onChange={handleChange} required />
+            </label>
+
+            <label>Email:
+              <input
+                type="email"
+                name="email"
+                placeholder="example@citchennai.net"
+                value={formData.email}
+                onChange={handleChange}
+                className={emailError ? 'error' : ''}
+                required
+              />
+              {emailError && <span className="error-text">* Email must end with @citchennai.net</span>}
+            </label>
+
+            <label>Password:
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className={passwordError ? 'error' : ''}
+                required
+              />
+              {passwordError && <span className="error-text">* Password must be at least 6 characters</span>}
+            </label>
+
+            <label>Department:
+              <select
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Department</option>
+                <option value="Cyber Security">Cyber Security</option>
+              </select>
+            </label>
+
+            <label>Year:
+              <input
+                type="number"
+                name="year"
+                min="1"
+                max="5"
+                value={formData.year}
+                onChange={handleChange}
+                required
+              />
+            </label>
+
+            <div className="form-buttons">
+              <button className="submit-button" type="submit">Submit</button>
+              <button className="clear-button" type="button" onClick={clearForm}>Clear</button>
+              <button className="back-button" type="button" onClick={() => setShowForm(false)}>Back</button>
+            </div>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default AddStudentForm;

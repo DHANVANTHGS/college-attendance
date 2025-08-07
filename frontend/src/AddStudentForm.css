@@ -1,0 +1,147 @@
+/* Overall page background */
+.page {
+  height: 100vh;
+  background: linear-gradient(135deg, #90a4ae, #b0bec5); /* grey with blue tint */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Stylish container */
+.form-container {
+  background: linear-gradient(145deg, #f5f5f5, #e0e0e0); /* light grey gradient */
+  border: 2px solid #cfd8dc;
+  border-radius: 18px;
+  padding: 30px 35px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease-in-out;
+  width: 380px;
+}
+
+.form-container:hover {
+  transform: scale(1.01);
+}
+
+/* Form layout */
+.add-student-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+}
+
+/* Form title */
+.add-student-form h2 {
+  text-align: center;
+  color: #263238;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+/* Input field group */
+.add-student-form label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  color: #37474f;
+  font-size: 14px;
+}
+
+/* Input boxes and dropdown */
+.add-student-form input,
+.add-student-form select {
+  padding: 10px;
+  margin-top: 6px;
+  font-size: 14px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: #ffffff;
+}
+
+.add-student-form input:focus,
+.add-student-form select:focus {
+  border-color: #5c6bc0;
+  box-shadow: 0 0 5px rgba(92, 107, 192, 0.4);
+  outline: none;
+}
+
+/* Add Student button */
+.add-student-button {
+  padding: 12px 20px;
+  font-size: 16px;
+  background-color: #5c6bc0;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s;
+}
+
+.add-student-button:hover {
+  background-color: #3949ab;
+  transform: scale(1.03);
+}
+
+/* Form button group */
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.submit-button,
+.clear-button,
+.back-button {
+  padding: 10px 16px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 2px solid #bbb;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Individual button styles */
+.submit-button {
+  background-color: #26a69a;
+  color: white;
+  border-color: #26a69a;
+}
+
+.clear-button {
+  background-color: #ffb300;
+  color: white;
+  border-color: #ffb300;
+}
+
+.back-button {
+  background-color: #ef5350;
+  color: white;
+  border-color: #ef5350;
+}
+
+/* Hover effects */
+.submit-button:hover {
+  background-color: #00897b;
+}
+
+.clear-button:hover {
+  background-color: #ffa000;
+}
+
+.back-button:hover {
+  background-color: #e53935;
+}
+
+/* Error styling */
+.error {
+  border: 2px solid red;
+}
+
+.error-text {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
+}

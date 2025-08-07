@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./Loginpage.jsx";
 import QRScannerPage from "./qrscan.jsx";
 import StudentList from "./StudentList";
+import QRButtonComponent from "./QRButtonComponent";
+
 
 function App() {
   return (
@@ -11,6 +13,7 @@ function App() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/scan" element={<QRScannerPage />} />
         <Route path="/students/:department/:roomno" element={<StudentList />} />
+        <Route path="/qr" element={<QRButtonComponent />} /> 
       </Routes>
     </Router>
   );
