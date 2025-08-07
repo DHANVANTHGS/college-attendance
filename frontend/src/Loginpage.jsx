@@ -6,7 +6,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  /*const handleLogin = async (e) => {
   e.preventDefault();
 
   const response = await fetch("http://localhost:5000/api/login", {
@@ -17,14 +17,14 @@ const LoginPage = () => {
 
   const data = await response.json();
 
-  if (data.status === "success") {
+  if (data.status === "success" && role=="Staff" ) {
     const { department, roomno } = data;
-    navigate(`/students/${department}/${roomno}`);
-  } else {
-    // handle error
+    navigate(`/staff/${department}/${roomno}`);
+  } else if(data.status === "success" && role=="Student" ){
+    navigate("/scan")
   }
-};
-/*const handleLogin = async (e) => {
+};*/
+const handleLogin = async (e) => {
   e.preventDefault();
 
   // Simulated response from backend
@@ -37,9 +37,14 @@ const LoginPage = () => {
   // Simulate async delay like a real fetch
   setTimeout(() => {
     const { department, roomno } = dummyResponse;
-    navigate(`/students/${department}/${roomno}`);
+    if(role=="Staff"){
+    navigate(`/students/${department}/${roomno}`);}
+    else{
+      
+      navigate("/scan")
+    }
   }, 500);
-};*/
+};
 
 
   return (
