@@ -2,7 +2,9 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./Loginpage.jsx";
 import QRScannerPage from "./qrscan.jsx";
-import StudentList from "./StudentList.jsx";
+import StudentList from "./StudentList";
+
+
 import StudentHome from "./StudentHome.jsx";
 import RequestForm from "./RequestForm.jsx";
 
