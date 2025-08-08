@@ -34,7 +34,7 @@ app.use(cors({
 app.use('/main',main);
 app.use('/staff',staff);
 app.use('/system',system);
-//app.use('/student',student);
+app.use('/student',student);
 
 app.use((err, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;

@@ -1,15 +1,25 @@
 const mongoose = require("mongoose");
 
 const SystemSchema = new mongoose.Schema({
-    Systemclass : {
-        type : String,
-        required : true
-    },
-    systemID:{
-        type :String,
-        required :true
+  Systemclass: {
+    type: String,
+    required: true
+  },
+  systemID: {
+    type: String,
+    required: true
+  },
+  qrData: {
+    qrId: String,
+    latitude: String,
+    longitude: String,
+    createdAt: {
+      type: Date,
+      default: Date.now
     }
+  }
 });
 
-const system = mongoose.model("System",SystemSchema);
-module.exports = system;
+
+const System = mongoose.model("System", SystemSchema);
+module.exports = System;

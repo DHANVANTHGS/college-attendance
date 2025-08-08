@@ -1,14 +1,15 @@
 const jwt = require('jsonwebtoken');
 const expressAsyncHandler = require('express-async-handler');
 const QRCode = require('qrcode');
+const { v4: uuidv4 } = require('uuid');
+
 const System = require('../models/system');
 const Student = require('../models/student');
 
-// Helper to format current time
 const getCurrentDateTime = () => {
   const now = new Date();
-  const date = now.toISOString().split('T')[0]; // YYYY-MM-DD
-  const time = now.toTimeString().split(' ')[0]; // HH:MM:SS
+  const date = now.toISOString().split('T')[0];
+  const time = now.toTimeString().split(' ')[0];
   return { date, time };
 };
 
@@ -41,15 +42,24 @@ const generateQR = expressAsyncHandler(async (req, res) => {
     throw new Error("System not found");
   }
 
-  const {  StudentClass, department } = systemData;
-  if (!StudentClass || !department) {
+  const { Systemclass } = systemData;
+  if (!Systemclass) {
     res.status(400);
-    throw new Error("System data missing class or department");
+    throw new Error("System data missing class");
   }
 
-  const students = await Student.find({ StudentClass, department });
+  const qrId = uuidv4();
+  const now = new Date();
 
+  systemData.qrData = {
+    qrId,
+    latitude,
+    longitude,
+    createdAt: now
+  };
+  await systemData.save();
 
+  const students = await Student.find({ StudentClass: Systemclass });
   const { date, time } = getCurrentDateTime();
 
   await Promise.all(
@@ -59,18 +69,15 @@ const generateQR = expressAsyncHandler(async (req, res) => {
     })
   );
 
-  // Prepare QR data with systemId + location
   const qrPayload = {
-    systemId,
-    latitude,
-    longitude
+    qrId,
+    systemId
   };
 
   const qrCode = await QRCode.toDataURL(JSON.stringify(qrPayload));
 
   res.status(200).json({
-    message: 'Attendance initialized and QR code generated',
-    qrCode // Base64 PNG string
+    qrCode
   });
 });
 

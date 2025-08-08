@@ -1,7 +1,7 @@
 const jwt=require('jsonwebtoken');  
 const path=require("path");  
 const express = require('express');
-const system = require('../controllers/system');
+const system = require('../models/system');
 const expressAsyncHandler=require('express-async-handler');
 
 const sysAuth = expressAsyncHandler(async(req,res,next)=>{
