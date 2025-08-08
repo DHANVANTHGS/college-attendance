@@ -1,26 +1,23 @@
-/*import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 const StudentList = () => {
   const { department, roomno } = useParams();
   const [students, setStudents] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [activeTab, setActiveTab] = useState("students");
 
   useEffect(() => {
     const fetchStudents = async () => {
       try {
         const response = await fetch(
           `http://localhost:5000/api/staff?department=${department}&roomno=${roomno}`,
-            {
-          method: 'GET',             // Explicit method
-          credentials: 'include',    // Send cookies with the request
-        }
+          { method: "GET", credentials: "include" }
         );
         const data = await response.json();
         setStudents(data.students || []);
-
       } catch (error) {
         console.error("Error fetching students:", error);
       } finally {
@@ -28,127 +25,186 @@ const StudentList = () => {
       }
     };
 
+    const fetchRequests = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/requests", {
+          method: "GET",
+          credentials: "include",
+        });
+        const data = await response.json();
+        setRequests(data.requests || []);
+      } catch (error) {
+        console.error("Error fetching requests:", error);
+      }
+    };
+
     fetchStudents();
+    fetchRequests();
   }, [department, roomno]);
-     
+
+  const handleStatusChange = async (regnNo, newStatus) => {
+    try {
+      await fetch("http://localhost:5000/api/updatestatus", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ regnNo, status: newStatus }),
+      });
+      setStudents((prev) =>
+        prev.map((s) =>
+          s.regnNo === regnNo ? { ...s, status: newStatus } : s
+        )
+      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
+
+  const handleRequestAction = async (regnNo, action, type) => {
+    const status = action === "accept" ? (type === "OD" ? "OD" : "Absent") : null;
+    try {
+      await fetch("http://localhost:5000/api/handlerequest", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ regnNo, action, status }),
+      });
+
+      if (status) {
+        setStudents((prev) =>
+          prev.map((s) =>
+            s.regnNo === regnNo ? { ...s, status } : s
+          )
+        );
+      }
+      setRequests((prev) => prev.filter((r) => r.regnNo !== regnNo));
+    } catch (error) {
+      console.error("Error handling request:", error);
+    }
+  };
+
+  const filteredStudents =
+    statusFilter === "All"
+      ? students
+      : students.filter((s) => s.status === statusFilter);
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h2 className="text-2xl font-bold mb-4">
         Attendance for {department} - Room {roomno}
       </h2>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <table className="w-full border-collapse bg-white rounded shadow">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="p-3 border">Name</th>
-              <th className="p-3 border">Regn No.</th>
-              <th className="p-3 border">Date</th>
-              <th className="p-3 border">Time</th>
-              <th className="p-3 border">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((student, idx) => (
-              <tr key={idx} className="text-center">
-                <td className="p-3 border">{student.name}</td>
-                <td className="p-3 border">{student.regnNo}</td>
-                <td className="p-3 border">{student.date}</td>
-                <td className="p-3 border">{student.time}</td>                
-                <td className="p-3 border">{student.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
-  );
-};
+      {/* Tabs */}
+      <div className="flex gap-4 mb-4">
+        <button
+          className={`px-4 py-2 rounded ${activeTab === "students" ? "bg-blue-500 text-white" : "bg-white border"}`}
+          onClick={() => setActiveTab("students")}
+        >
+          Students
+        </button>
+        <button
+          className={`px-4 py-2 rounded ${activeTab === "requests" ? "bg-blue-500 text-white" : "bg-white border"}`}
+          onClick={() => setActiveTab("requests")}
+        >
+          Requests
+        </button>
+      </div>
 
-export default StudentList;*/
+      {activeTab === "students" && (
+        <>
+          {/* Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+            <button className="bg-green-600 text-white px-4 py-2 rounded shadow w-full sm:w-auto">
+              ➕ Add User
+            </button>
+            <select
+              className="border px-3 py-2 rounded w-full sm:w-auto"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="All">All</option>
+              <option value="Present">Present</option>
+              <option value="Absent">Absent</option>
+              <option value="OD">OD</option>
+            </select>
+          </div>
 
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-
-const StudentList = () => {
-  const { department, roomno } = useParams();
-  const [students, setStudents] = useState([]);
-  const [error, setError] = useState(""); // ✅ Defined here
-  const [loading, setLoading] = useState(true); // Optional: show loading
-
-  useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/students/${department}/${roomno}`);
-
-        if (!response.ok) {
-          throw new Error("Server error");
-        }
-
-        const data = await response.json();
-        setStudents(data);
-        setError("");
-      } catch (err) {
-        console.error("Fetch error:", err.message || err);
-
-        // ✅ Set dummy data on fetch failure
-        setError("⚠️ Backend unavailable. Showing dummy data.");
-
-        setStudents([
-          { name: "Alice Johnson", regnNo: "22EC001", date: "2025-08-06", status: "Present" },
-          { name: "Bob Smith", regnNo: "22EC002", date: "2025-08-06", status: "Absent" },
-          { name: "Clara Lee", regnNo: "22EC003", date: "2025-08-06", status: "Present" },
-        ]);
-      } finally {
-        setLoading(false); // ✅ Always stop loading
-      }
-    };
-
-    fetchStudents();
-  }, [department, roomno]);
-
-  return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        Students in {department} - Room {roomno}
-      </h2>
-
-      
-      {loading && <p className="text-center text-gray-600">Loading...</p>}
-
-
-      {error && (
-        <div className="mb-4 text-red-600 text-center font-medium">{error}</div>
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full border-collapse bg-white rounded shadow">
+                <thead>
+                  <tr className="bg-gray-200 text-center">
+                    <th className="p-3 border">Name</th>
+                    <th className="p-3 border">Regn No.</th>
+                    <th className="p-3 border">Date</th>
+                    <th className="p-3 border">Time</th>
+                    <th className="p-3 border">Status</th>
+                    <th className="p-3 border">Change Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredStudents.map((student, idx) => (
+                    <tr key={idx} className="text-center">
+                      <td className="p-3 border">{student.name}</td>
+                      <td className="p-3 border">{student.regnNo}</td>
+                      <td className="p-3 border">{student.date}</td>
+                      <td className="p-3 border">{student.time}</td>
+                      <td className="p-3 border">{student.status}</td>
+                      <td className="p-3 border">
+                        <select
+                          className="border px-2 py-1 rounded"
+                          value={student.status}
+                          onChange={(e) =>
+                            handleStatusChange(student.regnNo, e.target.value)
+                          }
+                        >
+                          <option value="Present">Present</option>
+                          <option value="Absent">Absent</option>
+                          <option value="OD">OD</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
 
-      
-      {!loading && (
-        <table className="w-full border border-gray-300 rounded shadow">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="px-4 py-2 border">Name</th>
-              <th className="px-4 py-2 border">Regn No.</th>
-              <th className="px-4 py-2 border">Date</th>
-              <th className="px-4 py-2 border">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((stu, index) => (
-              <tr key={index} className="text-center">
-                <td className="px-4 py-2 border">{stu.name}</td>
-                <td className="px-4 py-2 border">{stu.regnNo}</td>
-                <td className="px-4 py-2 border">{stu.date}</td>
-                <td className="px-4 py-2 border">{stu.status}</td>
+      {activeTab === "requests" && (
+        <div className="overflow-x-auto">
+          <table className="min-w-full border-collapse bg-white rounded shadow">
+            <thead>
+              <tr className="bg-gray-200 text-center">
+                <th className="p-3 border">Name</th>
+                <th className="p-3 border">Regn No.</th>
+                <th className="p-3 border">Type</th>
+                <th className="p-3 border">Reason</th>
+                <th className="p-3 border">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {requests.map((req, index) => (
+  <tr key={index}>
+    <td>{req.name}</td>
+    <td>{req.type}</td>
+    <td>{req.reason}</td>
+    <td>
+      <button onClick={() => handleRequestAction(req.regnNo,"accept",req.type)} className="text-green-600">Accept</button>
+      <button onClick={() => handleRequestAction(req.regnNo,"deny",req.type)} className="text-red-600 ml-2">Deny</button>
+    </td>
+  </tr>
+))}
+
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
 };
 
 export default StudentList;
-

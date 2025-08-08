@@ -21,7 +21,7 @@ const LoginPage = () => {
     const { department, roomno } = data;
     navigate(`/staff/${department}/${roomno}`);
   } else if(data.status === "success" && role=="Student" ){
-    navigate("/scan")
+    navigate("/student")
   }
 };*/
 const handleLogin = async (e) => {
@@ -38,10 +38,9 @@ const handleLogin = async (e) => {
   setTimeout(() => {
     const { department, roomno } = dummyResponse;
     if(role=="Staff"){
-    navigate(`/students/${department}/${roomno}`);}
-    else{
-      
-      navigate("/scan")
+    navigate(`/staff/${department}/${roomno}`);}
+    else if(role=="Student"){
+      navigate("/student")
     }
   }, 500);
 };

@@ -18,6 +18,23 @@ const QRScannerPage = () => {
   const [showSelfie, setShowSelfie] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
+  // Haversine distance in meters
+function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // Earth's radius in meters
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+    Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+
 
 
   const fetchCameras = async () => {
@@ -68,43 +85,38 @@ const QRScannerPage = () => {
     }, 2000);
   }
 };
-
-
-  const sendToBackend = async (qrData, latitude, longitude) => {
+const sendToBackend = async (qrData, latitude, longitude) => {
   try {
+    // Parse systemid and qrid from qrData
+    const parsed = JSON.parse(qrData);
+    const { systemid, qrid } = parsed;
+
     const response = await fetch("http://localhost:5000/api/scan", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        qrData,
-        location: {
-          latitude,
-          longitude,
-        },
+        systemid,
+        qrid,
+        
       }),
     });
 
     const data = await response.json();
     console.log("Backend response:", data);
-    if (data.status === true) {
-      // Backend says: OK, now take a selfie
-      setShowSelfie(true);  // 👈 Define this function separately
-    } else {
-      // Status is false – show "Not in Range"
-      setFeedbackMessage("Not in Range");
 
-      // Redirect to login page after 2.5 seconds
+    if (data.status === true) {
+      setShowSelfie(true);
+    } else {
+      setFeedbackMessage("Not in Range");
       setTimeout(() => {
-        window.location.href = "/"; // or use a router navigate() if using React Router
+        window.location.href = "/";
       }, 2500);
     }
 
   } catch (err) {
     console.error("Error sending data to backend:", err);
-
-    // Display error message if fetch fails (e.g., backend is down)
     setFeedbackMessage("Failed to connect to backend");
     setTimeout(() => {
       window.location.href = "/scan";
@@ -112,6 +124,7 @@ const QRScannerPage = () => {
   }
 };
 
+  
 
 
   const startScanner = async () => {
@@ -131,26 +144,61 @@ const QRScannerPage = () => {
       await html5QrCode.start(
         selectedCameraId,
         { fps: 10, qrbox: 250 },
-        (decodedText) => {
-          setScannedData(decodedText);
+         async (decodedText) => {
+        try {
           stopScanner();
-    navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
-      console.log(latitude,longitude)
-      
-      sendToBackend(decodedText, latitude, longitude);
-    },
-    (error) => {
-      console.warn("Geolocation denied or failed:", error);
-      sendToBackend(decodedText, null, null); // Or handle differently
-    }
-  );
+          setScannedData(decodedText);
 
-        },
-        () => {}
-      );
+          const parsed = JSON.parse(decodedText);
+          const scannedLat = parseFloat(parsed.latitude);
+          const scannedLng = parseFloat(parsed.longitude);
+
+          if (isNaN(scannedLat) || isNaN(scannedLng)) {
+            setFeedbackMessage("Invalid QR location data");
+            setTimeout(() => window.location.href = "/scan", 2000);
+            return;
+          }
+
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const deviceLat = position.coords.latitude;
+              const deviceLng = position.coords.longitude;
+
+              const distance = getDistanceFromLatLonInMeters(
+                deviceLat, deviceLng,
+                scannedLat, scannedLng
+              );
+
+              console.log(`📍 Distance = ${distance.toFixed(2)} meters`);
+
+              if (distance <= 15) {
+                // ✅ Within range — proceed
+                sendToBackend(decodedText, deviceLat, deviceLng);
+              } else {
+                // ❌ Too far
+                setFeedbackMessage("You are not within range (15m)");
+                setTimeout(() => window.location.href = "/scan", 2500);
+              }
+            },
+            (error) => {
+              console.warn("Geolocation failed:", error);
+              setFeedbackMessage("Location access required");
+              setTimeout(() => window.location.href = "/scan", 2500);
+            }
+          );
+        } catch (e) {
+          console.error("Invalid QR Code format", e);
+          setFeedbackMessage("Invalid QR Code");
+          setTimeout(() => window.location.href = "/scan", 2500);
+        }
+      },
+
+      // Optional failure callback
+      (errorMessage) => {
+        console.warn("QR scan error:", errorMessage);
+      }
+    );
+
 
       isRunningRef.current = true;
 
