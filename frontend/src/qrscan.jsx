@@ -55,7 +55,7 @@ function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
   const sendSelfieToBackend = async (base64Image) => {
   try {
     
-    const response = await fetch("http://localhost:5000/api/selfie", {
+    const response = await fetch("http://localhost:5000/student/matchFace", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -85,13 +85,13 @@ function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
     }, 2000);
   }
 };
-const sendToBackend = async (qrData, latitude, longitude) => {
+const sendToBackend = async (qrData) => {
   try {
     // Parse systemid and qrid from qrData
     const parsed = JSON.parse(qrData);
     const { systemid, qrid } = parsed;
 
-    const response = await fetch("http://localhost:5000/api/scan", {
+    const response = await fetch("http://localhost:5000/student/scanQr", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

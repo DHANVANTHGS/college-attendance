@@ -1,7 +1,6 @@
-
-import './AddStudentForm.css'
+import './AddStudentForm.css';
 import React, { useState } from 'react';
-import './App.css'; // Make sure this file is created
+import './App.css';
 
 function AddStudentForm() {
   const [showForm, setShowForm] = useState(false);
@@ -25,9 +24,10 @@ function AddStudentForm() {
     if (name === 'password') setPasswordError(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validation
     const isEmailValid = formData.email.endsWith('@citchennai.net');
     const isPasswordValid = formData.password.trim().length >= 6;
 
@@ -36,10 +36,26 @@ function AddStudentForm() {
 
     if (!isEmailValid || !isPasswordValid) return;
 
-    console.log("Student data submitted:", formData);
-    alert("Student added successfully!");
-    setShowForm(false);
-    clearForm();
+    try {
+      // Send POST request to backend
+      const res = await fetch('http://localhost:5000/api/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (!res.ok) throw new Error('Failed to add student');
+
+      const data = await res.json();
+      console.log("Student added:", data);
+
+      alert("Student added successfully!");
+      setShowForm(false);
+      clearForm();
+    } catch (err) {
+      console.error(err);
+      alert("Error adding student");
+    }
   };
 
   const clearForm = () => {

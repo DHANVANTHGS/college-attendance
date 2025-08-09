@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const StudentList = () => {
   const { department, roomno } = useParams();
@@ -8,12 +9,13 @@ const StudentList = () => {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("All");
   const [activeTab, setActiveTab] = useState("students");
+  const navigate= useNavigate();
 
   useEffect(() => {
     const fetchStudents = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/staff?department=${department}&roomno=${roomno}`,
+          `http://localhost:5000/staff/attendance/department=${department}/class=${roomno}`,
           { method: "GET", credentials: "include" }
         );
         const data = await response.json();
@@ -44,7 +46,7 @@ const StudentList = () => {
 
   const handleStatusChange = async (regnNo, newStatus) => {
     try {
-      await fetch("http://localhost:5000/api/updatestatus", {
+      await fetch("http://localhost:5000/staff/updateStatus", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -63,7 +65,7 @@ const StudentList = () => {
   const handleRequestAction = async (regnNo, action, type) => {
     const status = action === "accept" ? (type === "OD" ? "OD" : "Absent") : null;
     try {
-      await fetch("http://localhost:5000/api/handlerequest", {
+      await fetch(`http://localhost:5000/staff/addUser/department=${department}/class=${roomno}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -114,7 +116,7 @@ const StudentList = () => {
         <>
           {/* Controls */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
-            <button className="bg-green-600 text-white px-4 py-2 rounded shadow w-full sm:w-auto">
+            <button className="bg-green-600 text-white px-4 py-2 rounded shadow w-full sm:w-auto" onClick={()=>navigate("adduser")}>
               ➕ Add User
             </button>
             <select
