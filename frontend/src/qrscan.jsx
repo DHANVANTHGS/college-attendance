@@ -67,9 +67,26 @@ function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
     console.log("Selfie response:", data);
 
     if (data.status === true) {
-      setFeedbackMessage("✅ Attendance marked successfully!");
+      try {
+        const putRes = await fetch("http://localhost:5000/student/putattendance", {
+          method: "PUT",
+          credentials: "include",
+        });
+
+        const putData = await putRes.json();
+        console.log("Update attendance response:", putData);
+
+        if (putData.message === "Attendance updated successfully") {
+          setFeedbackMessage("✅ Attendance marked successfully!");
+        } else {
+          setFeedbackMessage("❌ Failed to mark attendance.");
+        }
+      } catch (putErr) {
+        console.error("Error sending PUT request:", putErr);
+        setFeedbackMessage("❌ Error updating attendance.");
+      }
     } else {
-      setFeedbackMessage("❌ Failed to mark attendance.");
+      setFeedbackMessage("❌ Face match failed.");
     }
 
     // Wait 2 seconds, then go to login page
