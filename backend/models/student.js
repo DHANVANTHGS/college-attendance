@@ -15,24 +15,24 @@ const StudentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  year : {
-    type : Number ,
-    required : true
+  year: {
+    type: Number,
+    required: true
   },
-  department : {
-    type : String,
-    required : true
+  department: {
+    type: String,
+    required: true
   },
-  dob :{
-    type : Date,
-    required : true
+  dob: {
+    type: Date,
+    required: true
   },
   StudentClass: {
     type: String,
-    required : true
+    required: true
   },
   attendance: [{
-     date: {
+    date: {
       type: Date,
       required: true,
       default: Date.now
@@ -46,12 +46,22 @@ const StudentSchema = new mongoose.Schema({
       type: String,
       required: true,
       match: [/^\d{2}:\d{2}:\d{2}$/, 'Time must be in HH:MM:SS format']
+    },
+    verifiedBy: {
+      type: String,
+      enum: ['qr', 'manual', 'face'],
+      default: 'face'
     }
   }],
-  faceid :{
-    type : String,
+  faceImage: {
+    type: String, // base64 encoded image
+    required: true
+  },
+  faceEncoding: {
+    type: [Number], // Store face encoding for faster verification
+    select: false // Don't return this field by default
   }
-});
+}, { timestamps: true });
 
 const Student = mongoose.model("Student", StudentSchema);
 module.exports = Student;

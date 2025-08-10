@@ -6,6 +6,7 @@ const staff = require('./routers/staff');
 const system = require('./routers/system');
 const student = require('./routers/student');
 const cookieParser= require('cookie-parser');
+const faceVerificationRoutes = require('./routes/faceVerificationRoutes')
 require('dotenv').config({ path: __dirname + '/.env' });
 
 
@@ -35,6 +36,7 @@ app.use('/main',main);
 app.use('/staff',staff);
 app.use('/system',system);
 app.use('/student',student);
+app.use('/api/face', faceVerificationRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
