@@ -71,7 +71,7 @@ const attendance= expressAsyncHandler(async(req,res)=>{
       time : last?.time
     };
   });
-  res.status(200).json(result);
+  res.status(200).json({message :'data displayed'});
 });
 
 const updateAttendance = expressAsyncHandler(async(req,res)=>{

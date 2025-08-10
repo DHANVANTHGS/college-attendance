@@ -18,9 +18,9 @@ const modelMap = {
 const Domain = "@citchennai.net";
 
 const login = expressAsyncHandler(async (req,res) =>{
-  const { name, email, password, role } = req.body;
+  const {  email, password, role } = req.body;
 
-  if (!name || !email || !password || !role) {
+  if (!email || !password || !role) {
     res.status(400);
     throw new Error('All fields are required');
   }

@@ -6,24 +6,28 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  /*const handleLogin = async (e) => {
+  const handleLogin = async (e) => {
   e.preventDefault();
 
   const response = await fetch("http://localhost:5000/main/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password,role }),
   });
 
   const data = await response.json();
 
-  if (data.status === "success" && role=="Staff" ) {
+  if (response.status === 200 && role=="Staff" ) {
     const { department, roomno } = data;
     navigate(`/staff/${department}/${roomno}`);
-  } else if(data.status === "success" && role=="Student" ){
+  } else if(response.status === 200 && role=="Student" ){
     navigate("/student")
   }
-};*/
+  else if(response.status===200 && role=="System"){
+    navigate("/system/qrgen")
+  }
+};
+/*
 const handleLogin = async (e) => {
   e.preventDefault();
 
@@ -44,7 +48,7 @@ const handleLogin = async (e) => {
     }
   }, 500);
 };
-
+*/
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 to-teal-900 px-6 overflow-hidden">
