@@ -1,5 +1,7 @@
 const expressAsyncHandler = require('express-async-handler');
 const System = require('../models/system');
+const student = require('../models/student');
+const requests = require('../models/request');
 
 const validateQR = expressAsyncHandler(async (req, res) => {
   const { qrId, systemId } = req.body;
@@ -31,4 +33,97 @@ const validateQR = expressAsyncHandler(async (req, res) => {
   return res.status(200).json({ success: true, message: 'QR Code is valid' });
 });
 
-module.exports = validateQR;
+const putAttendance = expressAsyncHandler(async (req, res) => {
+  const token = req.cookies.token;
+  if (!token) {
+    res.status(401);
+    throw new Error("Not authenticated");
+  }
+
+  const data = jwt.verify(token, process.env.JWT_SECRET);
+  const mail = data.mail;
+
+  const user = await Student.findOne({ mail }); // ✅ Added await
+  if (!user) {
+    res.status(401);
+    throw new Error("Unauthorized access");
+  }
+
+  if (!user.attendance || user.attendance.length === 0) {
+    res.status(400);
+    throw new Error("No attendance record found");
+  }
+
+  const latestAttendance = user.attendance[user.attendance.length - 1];
+  latestAttendance.status = 'present';
+
+  const now = new Date();
+  const time = now.toTimeString().split(' ')[0]; // HH:MM:SS
+  latestAttendance.time = time;
+
+  await user.save();
+
+  res.json({ message: "Attendance updated successfully", time });
+});
+
+const sendRequest = expressAsyncHandler(async(req,res)=>{
+ 
+    const token = req.cookies.token;
+    const decoded = jwt.verify(token, "YOUR_SECRET_KEY");
+
+    const mail = decoded.email;
+
+    const { title, description, type, startDate, endDate, startTime, endTime } = req.body;
+
+    const student = await student.findOne({ mail});
+    if (!student) {
+      res.status(404);
+      throw new Error ("user not found");
+    }
+
+    const advisor1 = student.advisor1 
+    const advisor2 = student.advisor2;
+    if (!advisor1 && !advisor2){ 
+      res.status(400);
+      throw new Error ("Both advisor fiels are missing");
+    }
+    if (type === "OD" && (!startTime || !endTime)) {
+      res.status(400);
+      throw new Error('start and end time required for od')
+    }
+
+    const newRequest = await requests.create({
+      studentId: student._id,
+      advisor1,
+      advisor2,
+      title,
+      description,
+      type,
+      startDate,
+      endDate,
+      startTime: type === "OD" ? startTime : null,
+      endTime: type === "OD" ? endTime : null,
+      status: "Pending"
+    });
+
+   res.status(200).json({message : 'request sent'});
+});
+
+const Requests = expressAsyncHandler(async(req,res)=>{
+  const token = req.cookies.token;
+  const data = jwt.verify(token,process.env.JWT_SECRET);
+  const mail = data.mail;
+  const user = await student.findOne({mail});
+  if(!user){
+    res.status(401);
+    throw new Error ('unauthorized access');
+  }
+  const id = user._id;
+  const request = requests.find({studentId:id}).select("title description status");
+  res.status(200).json(request)
+});
+
+module.exports = {validateQR,
+  putAttendance,
+  sendRequest,
+  Requests};
