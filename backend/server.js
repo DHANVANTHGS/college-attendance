@@ -31,6 +31,7 @@ app.use(cors({
   credentials: true
 }));
 
+
 app.use('/main',main);
 app.use('/staff',staff);
 app.use('/system',system);
