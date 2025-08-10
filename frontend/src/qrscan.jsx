@@ -76,7 +76,7 @@ function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
         const putData = await putRes.json();
         console.log("Update attendance response:", putData);
 
-        if (putData.status === true) {
+        if (putData.message === "Attendance updated successfully") {
           setFeedbackMessage("✅ Attendance marked successfully!");
         } else {
           setFeedbackMessage("❌ Failed to mark attendance.");
