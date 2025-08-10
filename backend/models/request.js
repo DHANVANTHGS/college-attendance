@@ -15,4 +15,5 @@ const RequestSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now, expires: "30d" } // auto-delete after 30 days
 });
 
-module.exports = mongoose.model("Requests", RequestSchema);
+const requests = mongoose.model("Requests", RequestSchema);
+module.exports = requests;

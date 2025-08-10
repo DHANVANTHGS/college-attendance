@@ -51,16 +51,6 @@ const StudentSchema = new mongoose.Schema({
   faceid :{
     type : String,
   },
-  advisor1: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Faculty",
-      required: true 
-    },
-  advisor2: { 
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: "Faculty" ,
-      required: true
-    }
 });
 
 const Student = mongoose.model("Student", StudentSchema);

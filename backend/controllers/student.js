@@ -1,7 +1,10 @@
 const expressAsyncHandler = require('express-async-handler');
+const cookieParser=require('cookie-parser');
+const jwt=require('jsonwebtoken');  
 const System = require('../models/system');
 const student = require('../models/student');
 const requests = require('../models/request');
+const Class = require('../models/Classdb');
 
 const validateQR = expressAsyncHandler(async (req, res) => {
   const { qrId, systemId } = req.body;
@@ -43,7 +46,7 @@ const putAttendance = expressAsyncHandler(async (req, res) => {
   const data = jwt.verify(token, process.env.JWT_SECRET);
   const mail = data.mail;
 
-  const user = await Student.findOne({ mail }); // ✅ Added await
+  const user = await student.findOne({ mail }); // ✅ Added await
   if (!user) {
     res.status(401);
     throw new Error("Unauthorized access");
@@ -69,20 +72,25 @@ const putAttendance = expressAsyncHandler(async (req, res) => {
 const sendRequest = expressAsyncHandler(async(req,res)=>{
  
     const token = req.cookies.token;
-    const decoded = jwt.verify(token, "YOUR_SECRET_KEY");
+    const data = jwt.verify(token, process.env.JWT_SECRET);
 
-    const mail = decoded.email;
+    const mail = data.mail;
 
     const { title, description, type, startDate, endDate, startTime, endTime } = req.body;
 
-    const student = await student.findOne({ mail});
-    if (!student) {
+    const user = await student.findOne({ mail});
+    if (!user) {
       res.status(404);
       throw new Error ("user not found");
     }
-
-    const advisor1 = student.advisor1 
-    const advisor2 = student.advisor2;
+    const StudentClass = user.StudentClass;
+    const cls = await Class.findOne({classNo:StudentClass});
+    if (!cls) {
+      res.status(404);
+      throw new Error("Class not found");
+    }
+    const advisor1 = cls.advisor1 
+    const advisor2 = cls.advisor2;
     if (!advisor1 && !advisor2){ 
       res.status(400);
       throw new Error ("Both advisor fiels are missing");
@@ -93,7 +101,7 @@ const sendRequest = expressAsyncHandler(async(req,res)=>{
     }
 
     const newRequest = await requests.create({
-      studentId: student._id,
+      studentId: user._id,
       advisor1,
       advisor2,
       title,
@@ -119,8 +127,8 @@ const Requests = expressAsyncHandler(async(req,res)=>{
     throw new Error ('unauthorized access');
   }
   const id = user._id;
-  const request = requests.find({studentId:id}).select("title description status");
-  res.status(200).json(request)
+  const requestList = await requests.find({studentId:id}).select("title description status _id");
+  res.status(200).json({requests:requestList});
 });
 
 module.exports = {validateQR,
