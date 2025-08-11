@@ -27,7 +27,7 @@ const login = expressAsyncHandler(async (req,res) =>{
  
   if(!email.endsWith(Domain)){
         res.status(400);
-        throw new Error(`Only emails with ${emailDomain} are allowed`);
+        throw new Error(`Only emails with ${Domain} are allowed`);
   }
   const model = modelMap[role.toLowerCase()];
   if (!model) {
@@ -41,10 +41,11 @@ const login = expressAsyncHandler(async (req,res) =>{
     throw new Error('User not found');
   }
   const isMatch = await bcrypt.compare(password, user.password);
-  if (password != user.password) {
+  if (!isMatch) {
     res.status(401);
     throw new Error('Incorrect password');
   }
+
 
   const token = jwt.sign(
     { email: user.email, role: user.role },
