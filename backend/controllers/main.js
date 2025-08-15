@@ -20,6 +20,7 @@ const Domain = "@citchennai.net";
 const login = expressAsyncHandler(async (req,res) =>{
   const {  email, password, role } = req.body;
 
+  console.log(`${email} entered`);
   if (!email || !password || !role) {
     res.status(400);
     throw new Error('All fields are required');

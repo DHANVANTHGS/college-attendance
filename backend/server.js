@@ -21,7 +21,7 @@ app.use(cookieParser());
 
 connectDB();
 
-const allowedOrigins = ['http://120.0.0.7:3000'];
+const allowedOrigins = ['http://127.0.0.7:3000'];
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
