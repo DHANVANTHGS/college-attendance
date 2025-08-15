@@ -16,15 +16,19 @@ const LoginPage = () => {
   });
 
   const data = await response.json();
-
-  if (response.status === 200 && role=="Staff" ) {
-    const { department, roomno } = data;
-    navigate(`/staff/${department}/${roomno}`);
-  } else if(response.status === 200 && role=="Student" ){
-    navigate("/student")
+  if(response.status === 200){
+    if ( role=="Staff" ) {
+      const { department, roomno } = data;
+      navigate(`/staff/${department}/${roomno}`);
+    } else if(response.status === 200 && role=="Student" ){
+      navigate("/student")
+    }
+    else if(response.status===200 && role=="System"){
+      navigate("/system/qrgen")
+    }
   }
-  else if(response.status===200 && role=="System"){
-    navigate("/system/qrgen")
+  else{
+    alert(data.message);
   }
 };
 /*

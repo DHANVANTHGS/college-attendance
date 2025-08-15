@@ -54,8 +54,8 @@ const StudentSchema = new mongoose.Schema({
     }
   }],
   faceImage: {
-    type: String, // base64 encoded image
-    required: true
+    type: String // base64 encoded image
+    //required: true
   },
   faceEncoding: {
     type: [Number], // Store face encoding for faster verification
