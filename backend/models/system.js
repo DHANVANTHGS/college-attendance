@@ -5,7 +5,11 @@ const SystemSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  systemID: {
+  mail: {
+    type: String,
+    required: true
+  },
+  password: {
     type: String,
     required: true
   },

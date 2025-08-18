@@ -2,9 +2,13 @@ const jwt = require('jsonwebtoken');
 const expressAsyncHandler = require('express-async-handler');
 const QRCode = require('qrcode');
 const { v4: uuidv4 } = require('uuid');
+const express=require('express');
 
 const System = require('../models/system');
 const Student = require('../models/student');
+
+const app=express();
+app.use(express.json());
 
 const getCurrentDateTime = () => {
   const now = new Date();
@@ -22,11 +26,11 @@ const generateQR = expressAsyncHandler(async (req, res) => {
   }
 
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  const systemId = decoded.systemId;
+  const mail = decoded.email;
 
-  if (!systemId) {
+  if (!mail) {
     res.status(400);
-    throw new Error("Invalid token: No system ID");
+    throw new Error("Invalid token: No mail ID");
   }
 
   const { latitude, longitude } = req.body;
@@ -36,7 +40,7 @@ const generateQR = expressAsyncHandler(async (req, res) => {
     throw new Error("Latitude and Longitude are required.");
   }
 
-  const systemData = await System.findById(systemId);
+  const systemData = await System.findOne({mail});
   if (!systemData) {
     res.status(404);
     throw new Error("System not found");
@@ -71,7 +75,9 @@ const generateQR = expressAsyncHandler(async (req, res) => {
 
   const qrPayload = {
     qrId,
-    systemId
+    mail,
+    latitude,
+    longitude
   };
 
   const qrCode = await QRCode.toDataURL(JSON.stringify(qrPayload));

@@ -14,7 +14,7 @@ const port = process.env.PORT;
 
 
 const app = express();
-app.use(cors());
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -42,7 +42,7 @@ app.use('/face', faceVerificationRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-
+  console.log(err.message);
   res.status(statusCode).json({
     success: false,
     message: err.message || 'Server Error',

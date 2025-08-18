@@ -41,7 +41,13 @@ const login = expressAsyncHandler(async (req,res) =>{
     res.status(404);
     throw new Error('User not found');
   }
-  const isMatch = await bcrypt.compare(password, user.password);
+  let isMatch;
+  if(role.toLowerCase() != "system"){
+      isMatch = await bcrypt.compare(password, user.password);
+  }
+  else{
+      isMatch = user.password;
+  }
   if (!isMatch) {
     res.status(401);
     throw new Error('Incorrect password');
@@ -49,10 +55,18 @@ const login = expressAsyncHandler(async (req,res) =>{
 
 
   const token = jwt.sign(
-    { email: user.email, role: user.role },
+    { email: user.mail, role: role },
     process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );
+  
+
+  res.cookie("token", token, {
+  httpOnly: true,      
+  secure: false,        
+  sameSite: "lax",      
+  maxAge: 7 * 24 * 60 * 60 * 1000 
+});
 
   res.status(200).json({ message: 'Login successful', token });
 

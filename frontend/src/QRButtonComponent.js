@@ -18,7 +18,7 @@ function QRButtonComponent() {
        
         try {
           const response = await axios.post(
-            'http://localhost:5000/api/generate-qr',
+            'http://localhost:5000/system/generateQr',
             { latitude, longitude },
             {
               headers: {

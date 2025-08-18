@@ -106,7 +106,7 @@ const sendToBackend = async (qrData) => {
   try {
     // Parse systemid and qrid from qrData
     const parsed = JSON.parse(qrData);
-    const { systemid, qrid } = parsed;
+    const { mail, qrId } = parsed;
 
     const response = await fetch("http://localhost:5000/student/scanQr", {
       method: "POST",
@@ -114,8 +114,8 @@ const sendToBackend = async (qrData) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        systemid,
-        qrid,
+        mail,
+        qrId,
         
       }),
     });

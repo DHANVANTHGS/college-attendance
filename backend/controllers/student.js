@@ -7,14 +7,14 @@ const requests = require('../models/request');
 const Class = require('../models/Classdb');
 
 const validateQR = expressAsyncHandler(async (req, res) => {
-  const { qrId, systemId } = req.body;
+  const { qrId, mail } = req.body;
 
-  if (!qrId || !systemId) {
+  if (!qrId || !mail) {
     res.status(400);
-    throw new Error("qrId and systemId are required");
+    throw new Error("qrId and mail are required");
   }
 
-  const system = await System.findById(systemId);
+  const system = await System.findById({mail});
   if (!system || !system.qrData) {
     res.status(404);
     throw new Error("System or QR data not found");

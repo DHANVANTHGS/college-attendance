@@ -13,16 +13,16 @@ const sysAuth = expressAsyncHandler(async(req,res,next)=>{
   
   const data = jwt.verify(token , process.env.JWT_SECRET);
   const role = data.role;
-  const mail = data.mail;
-  if(role.toLowerCase() != "staff"){
+  const mail = data.email;
+  if(role.toLowerCase() != "system"){
         res.status(401);
-        throw new Error ("Unautherized Access");
+        throw new Error ("role Unautherized Access");
   }
   else {
     const check = await system.findOne({mail:mail});
     if(!check){
         res.status(401);
-        throw new Error ("unauthorized Access");
+        throw new Error ("mail unauthorized Access");
     }
     next();
   }
