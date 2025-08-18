@@ -19,7 +19,7 @@ const LoginPage = () => {
   const data = await response.json();
   if(response.status === 200){
     if ( role=="Staff" ) {
-      const { department, roomno } = data;
+      const { department, roomno } = data.staffinfo;
       navigate(`/staff/${department}/${roomno}`);
     } else if(response.status === 200 && role=="Student" ){
       navigate("/student")

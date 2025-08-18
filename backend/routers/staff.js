@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.post('/addUser',userAuth,staff.addUser);
 router.get('/attendance',userAuth,staff.attendance);
-router.put('/updateStatus',userAuth,staff.updateAttendance);
+router.put('/updateAttendance',userAuth,staff.updateAttendance);
 
 module.exports = router;

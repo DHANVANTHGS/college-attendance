@@ -19,6 +19,10 @@ const facultySchema = new mongoose.Schema({
     type : String,
     default : 'NA'
   },
+  department: {
+    type: String,
+    required: true
+  },
   HOD : {
     type : Boolean,
     required : true

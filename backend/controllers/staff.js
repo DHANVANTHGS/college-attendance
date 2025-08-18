@@ -62,16 +62,17 @@ const attendance= expressAsyncHandler(async(req,res)=>{
   throw new Error ("Invalid URI");
 }
   const data = await Student.find({StudentClass:HandlingClass , department:department}).select("name attendance").lean();
-  const result = data.map(data=>{
-    const last = data.attendance?.[data.attendance.length-1]; 
+  const result = data.map(stud=>{
+    const last = stud.attendance?.[stud.attendance.length-1]; 
     return {
-      name : data.name,
+      name : stud.name,
       date : last?.date,
       status :last?.status,
       time : last?.time
     };
   });
-  res.status(200).json({message :'data displayed'});
+  console.log(result);
+  res.status(200).json({message :'data displayed',students:result});
 });
 
 const updateAttendance = expressAsyncHandler(async(req,res)=>{

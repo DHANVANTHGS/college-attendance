@@ -15,10 +15,14 @@ const StudentList = () => {
     const fetchStudents = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/staff/attendance/department=${department}/class=${roomno}`,
+          `http://localhost:5000/staff/attendance?department=${department}&class=${roomno}`,
           { method: "GET", credentials: "include" }
         );
+        if (!response.ok) {
+            throw new Error("Failed to fetch students");
+        }
         const data = await response.json();
+        console.log(data.students);
         setStudents(data.students || []);
       } catch (error) {
         console.error("Error fetching students:", error);
@@ -46,7 +50,7 @@ const StudentList = () => {
 
   const handleStatusChange = async (regnNo, newStatus) => {
     try {
-      await fetch("http://localhost:5000/staff/updateStatus", {
+      await fetch(`http://localhost:5000/staff/updateAttendance?department=${department}&class=${roomno}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -147,19 +151,19 @@ const StudentList = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredStudents.map((student, idx) => (
+                  {filteredStudents.map((students, idx) => (
                     <tr key={idx} className="text-center">
-                      <td className="p-3 border">{student.name}</td>
-                      <td className="p-3 border">{student.regnNo}</td>
-                      <td className="p-3 border">{student.date}</td>
-                      <td className="p-3 border">{student.time}</td>
-                      <td className="p-3 border">{student.status}</td>
+                      <td className="p-3 border">{students.name}</td>
+                      <td className="p-3 border">{students.regnNo}</td>
+                      <td className="p-3 border">{students.date}</td>
+                      <td className="p-3 border">{students.time}</td>
+                      <td className="p-3 border">{students.status}</td>
                       <td className="p-3 border">
                         <select
                           className="border px-2 py-1 rounded"
-                          value={student.status}
+                          value={students.status}
                           onChange={(e) =>
-                            handleStatusChange(student.regnNo, e.target.value)
+                            handleStatusChange(students.regnNo, e.target.value)
                           }
                         >
                           <option value="Present">Present</option>

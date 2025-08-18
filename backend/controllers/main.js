@@ -67,8 +67,10 @@ const login = expressAsyncHandler(async (req,res) =>{
   sameSite: "lax",      
   maxAge: 7 * 24 * 60 * 60 * 1000 
 });
-
-  res.status(200).json({ message: 'Login successful', token });
+  if(role.toLowerCase()=="staff"){
+    staffinfo={roomno:user.HandlingClass,department:user.department};
+  }
+  res.status(200).json({ message: 'Login successful', token ,staffinfo});
 
 });
 

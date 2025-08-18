@@ -14,7 +14,7 @@ const userAuth = expressAsyncHandler(async(req,res,next)=>{
   
   const data = jwt.verify(token , process.env.JWT_SECRET);
   const role = data.role;
-  const mail = data.mail;
+  const mail = data.email;
   if(role.toLowerCase() != "staff"){
         res.status(401);
         throw new Error ("Unautherized Access");
