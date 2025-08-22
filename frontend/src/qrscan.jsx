@@ -61,6 +61,7 @@ function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ image: base64Image }),
+      credentials:"include"
     });
 
     const data = await response.json();
@@ -107,26 +108,26 @@ const sendToBackend = async (qrData) => {
     // Parse systemid and qrid from qrData
     const parsed = JSON.parse(qrData);
     const { mail, qrId } = parsed;
-
-    const response = await fetch("http://localhost:5000/student/scanQr", {
+    alert('sending to backend');
+    const response = await fetch("http://localhost:5000/student/ValidateQr", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         mail,
-        qrId,
-        
+        qrId,   
       }),
+      credentials:"include"
     });
 
     const data = await response.json();
     console.log("Backend response:", data);
 
-    if (data.status === true) {
+    if (data.status === 200) {
       setShowSelfie(true);
     } else {
-      setFeedbackMessage("Not in Range");
+      setFeedbackMessage(data.message);
       setTimeout(() => {
         window.location.href = "/";
       }, 2500);
@@ -136,8 +137,8 @@ const sendToBackend = async (qrData) => {
     console.error("Error sending data to backend:", err);
     setFeedbackMessage("Failed to connect to backend");
     setTimeout(() => {
-      window.location.href = "/scan";
-    }, 2500);
+      window.location.href = "student/ValidateQR";
+    }, 12500);
   }
 };
 

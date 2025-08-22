@@ -8,7 +8,7 @@ const Class = require('../models/Classdb');
 
 const validateQR = expressAsyncHandler(async (req, res) => {
   const { qrId, mail } = req.body;
-
+  console.log('recieved scan');
   if (!qrId || !mail) {
     res.status(400);
     throw new Error("qrId and mail are required");
@@ -66,7 +66,7 @@ const putAttendance = expressAsyncHandler(async (req, res) => {
 
   await user.save();
 
-  res.json({ message: "Attendance updated successfully", time });
+  res.status(200).json({ message: "Attendance updated successfully", time });
 });
 
 const sendRequest = expressAsyncHandler(async(req,res)=>{

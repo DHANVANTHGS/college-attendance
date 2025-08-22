@@ -67,6 +67,7 @@ const login = expressAsyncHandler(async (req,res) =>{
   sameSite: "lax",      
   maxAge: 7 * 24 * 60 * 60 * 1000 
 });
+let staffinfo;
   if(role.toLowerCase()=="staff"){
     staffinfo={roomno:user.HandlingClass,department:user.department};
   }
