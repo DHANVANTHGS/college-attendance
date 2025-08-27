@@ -1,11 +1,13 @@
 import './AddStudentForm.css';
 import React, { useState } from 'react';
 import './App.css';
+import { useParams } from 'react-router-dom';
 
 function AddStudentForm() {
   const [showForm, setShowForm] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+  const {department,roomno}=useParams();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -13,7 +15,9 @@ function AddStudentForm() {
     email: '',
     password: '',
     department: '',
-    year: ''
+    year: '',
+    department,
+    roomno
   });
 
   const handleChange = (e) => {
@@ -38,9 +42,10 @@ function AddStudentForm() {
 
     try {
       // Send POST request to backend
-      const res = await fetch('http://localhost:5000/api/students', {
+      const res = await fetch(`http://localhost:5000/staff/addUser/department=${department}/class=${roomno}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials:"include",
         body: JSON.stringify(formData)
       });
 

@@ -24,6 +24,7 @@ const RequestForm = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(requestBody),
+        credentials:"include"
       });
 
       const data = await response.json();
