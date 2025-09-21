@@ -6,6 +6,7 @@ require('dotenv').config();
 const Student = require('../models/student');
 const faculty = require('../models/faculty');
 const system = require('../models/system');
+const request = require('../models/request');
 
 const Domain = "@citchennai.net";
 
@@ -103,8 +104,37 @@ const updateAttendance = expressAsyncHandler(async(req,res)=>{
   res.status(200).json({ message: 'Attendance updated successfully' });
 });
 
+const get_Request = expressAsyncHandler(async(req,res)=>{
+  const requests = await request.findall();
+  if(!requests){
+    res.status(404);
+    res.status.json({message : 'no requests found' });
+  }
+  res.status(200).json({message :'data fetched',students:requests});
+});
+
+const response = expressAsyncHandler(async(req,res)=>{
+  const { requestId, status } = req.body;
+
+  if (!requestId || !status) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+  const request = await request.findById(requestId);
+
+  if (!req) {
+    return res.status(404).json({ message: 'Request not found' });
+  }
+  req.status = status;
+
+  await req.save();
+
+  res.status(200).json({ message: 'Request status updated successfully' });
+});
+
 module.exports = {
     addUser,
     attendance,
-    updateAttendance
+    updateAttendance,
+    get_Request,
+    response
 };
