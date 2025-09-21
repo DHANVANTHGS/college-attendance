@@ -11,6 +11,7 @@ const request = require('../models/request');
 const Domain = "@citchennai.net";
 
 const addUser = expressAsyncHandler(async(req,res)=>{
+  console.log('add user included');
    const { name, mail, password, dob, year } = req.body;
    
    const StudentClass = req.query.class;

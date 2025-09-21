@@ -42,7 +42,7 @@ function AddStudentForm() {
 
     try {
       // Send POST request to backend
-      const res = await fetch(`http://localhost:5000/staff/addUser/department=${department}/class=${roomno}`, {
+      const res = await fetch(`http://localhost:5000/staff/addUser?department=${department}&class=${roomno}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials:"include",
