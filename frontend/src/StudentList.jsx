@@ -33,7 +33,7 @@ const StudentList = () => {
 
     const fetchRequests = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/requests", {
+        const response = await fetch("http://localhost:5000/staff/get_Request", {
           method: "GET",
           credentials: "include",
         });

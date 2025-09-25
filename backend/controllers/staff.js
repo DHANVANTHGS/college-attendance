@@ -7,31 +7,34 @@ const Student = require('../models/student');
 const faculty = require('../models/faculty');
 const system = require('../models/system');
 const request = require('../models/request');
+const jwt=require('jsonwebtoken');
 
 const Domain = "@citchennai.net";
 
 const addUser = expressAsyncHandler(async(req,res)=>{
   console.log('add user included');
-   const { name, mail, password, dob, year } = req.body;
+   const { name, email, password, dob, year } = req.body;
    
    const StudentClass = req.query.class;
    const department = req.query.department;
-  if (!name || !mail || !password || !dob || !year ) {
+  if (!name || !email || !password || !dob || !year ) {
+    console.log({name, email, password, dob, year});
     res.status(400);
     throw new Error("All fields are required");
   }
 
   if(!StudentClass || !department){
+    console.log({StudentClass, department});
     res.status(401);
     throw new Error ("Invalid URI");
   }
 
-  if (!mail.endsWith("@citchennai.net")) {
+  if (!email.endsWith("@citchennai.net")) {
     res.status(400);
     throw new Error("Email must end with @citchennai.net");
   }
 
-  const existingStudent = await Student.findOne({ mail });
+  const existingStudent = await Student.findOne({ email });
   if (existingStudent) {
     res.status(400);
     throw new Error("Student already exists");
@@ -41,7 +44,7 @@ const addUser = expressAsyncHandler(async(req,res)=>{
 
   const newStudent = await Student.create({
     name,
-    mail,
+    mail: email,
     password: hashedPassword,
     dob,
     year,
@@ -78,6 +81,7 @@ const attendance= expressAsyncHandler(async(req,res)=>{
 });
 
 const updateAttendance = expressAsyncHandler(async(req,res)=>{
+  console.log('update attendance called');
   const { mail, date, time, status } = req.body;
 
   if (!mail || !date || !time || !status) {
@@ -106,10 +110,19 @@ const updateAttendance = expressAsyncHandler(async(req,res)=>{
 });
 
 const get_Request = expressAsyncHandler(async(req,res)=>{
-  const requests = await request.findall();
-  if(!requests){
+  const token = req.cookies.token;
+  const data = jwt.verify(token, process.env.JWT_SECRET);
+  const mail = data.email;
+  const user = await faculty.findOne({ mail }).select('_id');
+  const requests = await request.find({
+  $or: [
+    { advisor1: user._id },
+    { advisor2: user._id }
+  ]
+}).select('studentId title description type startDate endDate startTime endTime status').populate('studentId', 'name mail StudentClass').lean();
+  if (!requests) {
     res.status(404);
-    res.status.json({message : 'no requests found' });
+    res.json({message : 'no requests found' });
   }
   res.status(200).json({message :'data fetched',students:requests});
 });

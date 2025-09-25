@@ -44,7 +44,7 @@ const putAttendance = expressAsyncHandler(async (req, res) => {
   }
 
   const data = jwt.verify(token, process.env.JWT_SECRET);
-  const mail = data.mail;
+  const mail = data.email;
 
   const user = await student.findOne({ mail }); // ✅ Added await
   if (!user) {
@@ -70,11 +70,11 @@ const putAttendance = expressAsyncHandler(async (req, res) => {
 });
 
 const sendRequest = expressAsyncHandler(async(req,res)=>{
- 
+  console.log()
     const token = req.cookies.token;
     const data = jwt.verify(token, process.env.JWT_SECRET);
 
-    const mail = data.mail;
+    const mail = data.email;
 
     const { title, description, type, startDate, endDate, startTime, endTime } = req.body;
 
@@ -118,9 +118,10 @@ const sendRequest = expressAsyncHandler(async(req,res)=>{
 });
 
 const Requests = expressAsyncHandler(async(req,res)=>{
+  console.log('including requests');
   const token = req.cookies.token;
   const data = jwt.verify(token,process.env.JWT_SECRET);
-  const mail = data.mail;
+  const mail = data.email;
   const user = await student.findOne({mail});
   if(!user){
     res.status(401);
