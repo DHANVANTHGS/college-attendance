@@ -14,7 +14,7 @@ const validateQR = expressAsyncHandler(async (req, res) => {
     throw new Error("qrId and mail are required");
   }
 
-  const system = await System.findById({mail});
+  const system = await System.findOne({mail});
   if (!system || !system.qrData) {
     res.status(404);
     throw new Error("System or QR data not found");

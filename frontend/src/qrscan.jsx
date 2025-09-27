@@ -188,7 +188,7 @@ const sendToBackend = async (qrData) => {
               );
 
               console.log(`📍 Distance = ${distance.toFixed(2)} meters`);
-
+              console.log(`Device: ${deviceLat}, ${deviceLng} | QR: ${scannedLat}, ${scannedLng} | Distance: ${distance}`);
               if (distance <= 15) {
                 // ✅ Within range — proceed
                 sendToBackend(decodedText, deviceLat, deviceLng);
