@@ -49,22 +49,33 @@ const StudentList = () => {
   }, [department, roomno]);
 
   const handleStatusChange = async (regnNo, newStatus) => {
-    try {
-      await fetch(`http://localhost:5000/staff/updateAttendance?department=${department}&class=${roomno}`, {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/staff/updateAttendance?department=${department}&class=${roomno}`,
+      {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ regnNo, status: newStatus }),
-      });
-      setStudents((prev) =>
-        prev.map((s) =>
-          s.regnNo === regnNo ? { ...s, status: newStatus } : s
-        )
-      );
-    } catch (error) {
-      console.error("Error updating status:", error);
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to update status");
     }
-  };
+
+    setStudents((prevStudents) =>
+      prevStudents.map((student) =>
+        student.regnNo === regnNo
+          ? { ...student, status: newStatus }
+          : student
+      )
+    );
+  } catch (error) {
+    console.error("Error updating status:", error);
+  }
+};
+
 
   const handleRequestAction = async (regnNo, action, type) => {
     const status = action === "accept" ? (type === "OD" ? "OD" : "Absent") : null;
@@ -151,29 +162,30 @@ const StudentList = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredStudents.map((students, idx) => (
-                    <tr key={idx} className="text-center">
-                      <td className="p-3 border">{students.name}</td>
-                      <td className="p-3 border">{students.regnNo}</td>
-                      <td className="p-3 border">{students.date}</td>
-                      <td className="p-3 border">{students.time}</td>
-                      <td className="p-3 border">{students.status}</td>
-                      <td className="p-3 border">
-                        <select
-                          className="border px-2 py-1 rounded"
-                          value={students.status}
-                          onChange={(e) =>
-                            handleStatusChange(students.regnNo, e.target.value)
-                          }
-                        >
-                          <option value="Present">Present</option>
-                          <option value="Absent">Absent</option>
-                          <option value="OD">OD</option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+  {filteredStudents.map((student) => (
+    <tr key={student.regnNo} className="text-center">
+      <td className="p-3 border">{student.name}</td>
+      <td className="p-3 border">{student.regnNo}</td>
+      <td className="p-3 border">{student.date}</td>
+      <td className="p-3 border">{student.time}</td>
+      <td className="p-3 border">{student.status}</td>
+      <td className="p-3 border">
+        <select
+          className="border px-2 py-1 rounded"
+          value={student.status}
+          onChange={(e) =>
+            handleStatusChange(student.regnNo, e.target.value)
+          }
+        >
+          <option value="Present">Present</option>
+          <option value="Absent">Absent</option>
+          <option value="OD">OD</option>
+        </select>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
               </table>
             </div>
           )}
