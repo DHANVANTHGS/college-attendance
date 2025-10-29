@@ -1,0 +1,180 @@
+/* ===== Main Container ===== */
+.student-list-container {
+  min-height: 100vh;
+  background-color: #f3f4f6;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  box-sizing: border-box;
+}
+
+/* ===== Heading ===== */
+.student-list-container h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+/* ===== Top Controls (Tabs + Buttons + Dropdown) ===== */
+.top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between; /* Tabs left, buttons right */
+  gap: 1rem;
+  width: 100%;
+  max-width: 1000px;
+}
+
+/* Tabs Section */
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap; /* Wrap on small screens */
+}
+
+.tab-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.tab-button.active {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.tab-button:hover {
+  background-color: #f3f4f6;
+}
+
+/* Controls (Add button + Filter) */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap; /* Wrap on small screens */
+}
+
+/* Add User Button */
+.add-user-btn {
+  background-color: #16a34a;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.add-user-btn:hover {
+  background-color: #15803d;
+}
+
+/* Dropdown beside the button */
+.filter-dropdown {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+  background-color: white;
+  cursor: pointer;
+}
+
+/* ===== Table Wrapper ===== */
+.table-wrapper {
+  width: 100%;
+  max-width: 1100px;
+  overflow-x: auto;
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* ===== Table ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  min-width: 800px;
+}
+
+thead tr {
+  background-color: #e5e7eb;
+}
+
+th, td {
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  color: #111827;
+}
+
+th {
+  font-weight: 600;
+}
+
+/* ===== Status Select ===== */
+.status-select {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+}
+
+/* ===== Requests Buttons ===== */
+.requests button {
+  padding: 0.25rem 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+.requests button.accept {
+  color: #16a34a;
+}
+
+.requests button.deny {
+  color: #dc2626;
+  margin-left: 0.5rem;
+}
+
+/* ===== Responsive Adjustments ===== */
+@media (max-width: 768px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .controls {
+    justify-content: center;
+  }
+
+  .table-wrapper {
+    max-width: 100%;
+  }
+
+  table {
+    min-width: 600px;
+  }
+}

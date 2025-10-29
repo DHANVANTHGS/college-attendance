@@ -1,29 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import "./studentList.css";
 
-const StudentList = () => {
-  const { department, roomno } = useParams();
+const App = ({ department, roomno }) => {
   const [students, setStudents] = useState([]);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("All");
   const [activeTab, setActiveTab] = useState("students");
-  const navigate= useNavigate();
 
   useEffect(() => {
+    // Fetch students
     const fetchStudents = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/staff/attendance?department=${department}&class=${roomno}`,
+          `http://localhost:5000/staff/attendance?department=${department}&roomno=${roomno}`,
           { method: "GET", credentials: "include" }
         );
-        if (!response.ok) {
-            throw new Error("Failed to fetch students");
-        }
         const data = await response.json();
-        console.log(data.students);
-        setStudents(data.students || []);
+        setStudents(Array.isArray(data) ? data : data.students || []);
       } catch (error) {
         console.error("Error fetching students:", error);
       } finally {
@@ -31,14 +25,15 @@ const StudentList = () => {
       }
     };
 
+    // Fetch requests
     const fetchRequests = async () => {
       try {
-        const response = await fetch("http://localhost:5000/staff/get_Request", {
+        const response = await fetch(`http://localhost:5000/staff/get_Request?department=${department}&roomno=${roomno}`, {
           method: "GET",
           credentials: "include",
         });
         const data = await response.json();
-        setRequests(data.requests || []);
+        setRequests(Array.isArray(data) ? data : data.requests || []);
       } catch (error) {
         console.error("Error fetching requests:", error);
       }
@@ -48,53 +43,42 @@ const StudentList = () => {
     fetchRequests();
   }, [department, roomno]);
 
+  // Update student status
   const handleStatusChange = async (regnNo, newStatus) => {
-  try {
-    const response = await fetch(
-      `http://localhost:5000/staff/updateAttendance?department=${department}&class=${roomno}`,
-      {
+    setStudents((prev) =>
+      prev.map((s) => (s.regnNo === regnNo ? { ...s, status: newStatus } : s))
+    );
+
+    try {
+      await fetch("http://localhost:5000/api/updatestatus", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ regnNo, status: newStatus }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to update status");
+      });
+    } catch (error) {
+      console.error("Error updating status:", error);
     }
+  };
 
-    setStudents((prevStudents) =>
-      prevStudents.map((student) =>
-        student.regnNo === regnNo
-          ? { ...student, status: newStatus }
-          : student
-      )
-    );
-  } catch (error) {
-    console.error("Error updating status:", error);
-  }
-};
-
-
+  // Handle request action
   const handleRequestAction = async (regnNo, action, type) => {
     const status = action === "accept" ? (type === "OD" ? "OD" : "Absent") : null;
+
+    if (status) {
+      setStudents((prev) =>
+        prev.map((s) => (s.regnNo === regnNo ? { ...s, status } : s))
+      );
+    }
+    setRequests((prev) => prev.filter((r) => r.regnNo !== regnNo));
+
     try {
-      await fetch(`http://localhost:5000/staff/addUser/department=${department}/class=${roomno}`, {
+      await fetch("http://localhost:5000/api/handlerequest", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ regnNo, action, status }),
       });
-
-      if (status) {
-        setStudents((prev) =>
-          prev.map((s) =>
-            s.regnNo === regnNo ? { ...s, status } : s
-          )
-        );
-      }
-      setRequests((prev) => prev.filter((r) => r.regnNo !== regnNo));
     } catch (error) {
       console.error("Error handling request:", error);
     }
@@ -106,36 +90,35 @@ const StudentList = () => {
       : students.filter((s) => s.status === statusFilter);
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h2 className="text-2xl font-bold mb-4">
+    <div className="student-list-container">
+      <h2>
         Attendance for {department} - Room {roomno}
       </h2>
 
-      {/* Tabs */}
-      <div className="flex gap-4 mb-4">
-        <button
-          className={`px-4 py-2 rounded ${activeTab === "students" ? "bg-blue-500 text-white" : "bg-white border"}`}
-          onClick={() => setActiveTab("students")}
-        >
-          Students
-        </button>
-        <button
-          className={`px-4 py-2 rounded ${activeTab === "requests" ? "bg-blue-500 text-white" : "bg-white border"}`}
-          onClick={() => setActiveTab("requests")}
-        >
-          Requests
-        </button>
-      </div>
+      {/* ===== Top Control Bar ===== */}
+      <div className="top-bar">
+        {/* Left Side (Tabs) */}
+        <div className="tabs">
+          <button
+            className={`tab-button ${activeTab === "students" ? "active" : ""}`}
+            onClick={() => setActiveTab("students")}
+          >
+            Students
+          </button>
+          <button
+            className={`tab-button ${activeTab === "requests" ? "active" : ""}`}
+            onClick={() => setActiveTab("requests")}
+          >
+            Requests
+          </button>
+        </div>
 
-      {activeTab === "students" && (
-        <>
-          {/* Controls */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
-            <button className="bg-green-600 text-white px-4 py-2 rounded shadow w-full sm:w-auto" onClick={()=>navigate("adduser")}>
-              ➕ Add User
-            </button>
+        {/* Right Side (Controls) */}
+        {activeTab === "students" && (
+          <div className="controls">
+            <button className="add-user-btn">➕ Add Student</button>
             <select
-              className="border px-3 py-2 rounded w-full sm:w-auto"
+              className="filter-dropdown"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -145,78 +128,97 @@ const StudentList = () => {
               <option value="OD">OD</option>
             </select>
           </div>
+        )}
+      </div>
 
+      {/* ===== Students Table ===== */}
+      {activeTab === "students" && (
+        <>
           {loading ? (
             <p>Loading...</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full border-collapse bg-white rounded shadow">
+            <div className="table-wrapper">
+              <table>
                 <thead>
-                  <tr className="bg-gray-200 text-center">
-                    <th className="p-3 border">Name</th>
-                    <th className="p-3 border">Regn No.</th>
-                    <th className="p-3 border">Date</th>
-                    <th className="p-3 border">Time</th>
-                    <th className="p-3 border">Status</th>
-                    <th className="p-3 border">Change Status</th>
+                  <tr>
+                    <th>Name</th>
+                    <th>Regn No.</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Change Status</th>
                   </tr>
                 </thead>
                 <tbody>
-  {filteredStudents.map((student) => (
-    <tr key={student.regnNo} className="text-center">
-      <td className="p-3 border">{student.name}</td>
-      <td className="p-3 border">{student.regnNo}</td>
-      <td className="p-3 border">{student.date}</td>
-      <td className="p-3 border">{student.time}</td>
-      <td className="p-3 border">{student.status}</td>
-      <td className="p-3 border">
-        <select
-          className="border px-2 py-1 rounded"
-          value={student.status}
-          onChange={(e) =>
-            handleStatusChange(student.regnNo, e.target.value)
-          }
-        >
-          <option value="Present">Present</option>
-          <option value="Absent">Absent</option>
-          <option value="OD">OD</option>
-        </select>
-      </td>
-    </tr>
-  ))}
-</tbody>
-
+                  {filteredStudents.map((student, idx) => (
+                    <tr key={idx}>
+                      <td>{student.name}</td>
+                      <td>{student.regnNo}</td>
+                      <td>{student.date}</td>
+                      <td>{student.time}</td>
+                      <td>{student.status}</td>
+                      <td>
+                        <select
+                          className="status-select"
+                          value={student.status}
+                          onChange={(e) =>
+                            handleStatusChange(student.regnNo, e.target.value)
+                          }
+                        >
+                          <option value="Present">Present</option>
+                          <option value="Absent">Absent</option>
+                          <option value="OD">OD</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
           )}
         </>
       )}
 
+      {/* ===== Requests Table ===== */}
       {activeTab === "requests" && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse bg-white rounded shadow">
+        <div className="table-wrapper requests">
+          <table>
             <thead>
-              <tr className="bg-gray-200 text-center">
-                <th className="p-3 border">Name</th>
-                <th className="p-3 border">Regn No.</th>
-                <th className="p-3 border">Type</th>
-                <th className="p-3 border">Reason</th>
-                <th className="p-3 border">Actions</th>
+              <tr>
+                <th>Name</th>
+                <th>Regn No.</th>
+                <th>Type</th>
+                <th>Reason</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {requests.map((req, index) => (
-  <tr key={index}>
-    <td>{req.name}</td>
-    <td>{req.type}</td>
-    <td>{req.reason}</td>
-    <td>
-      <button onClick={() => handleRequestAction(req.regnNo,"accept",req.type)} className="text-green-600">Accept</button>
-      <button onClick={() => handleRequestAction(req.regnNo,"deny",req.type)} className="text-red-600 ml-2">Deny</button>
-    </td>
-  </tr>
-))}
-
+                <tr key={index}>
+                  <td>{req.name}</td>
+                  <td>{req.regnNo}</td>
+                  <td>{req.type}</td>
+                  <td>{req.reason}</td>
+                  <td>
+                    <button
+                      className="accept"
+                      onClick={() =>
+                        handleRequestAction(req.regnNo, "accept", req.type)
+                      }
+                    >
+                      Accept
+                    </button>
+                    <button
+                      className="deny"
+                      onClick={() =>
+                        handleRequestAction(req.regnNo, "deny", req.type)
+                      }
+                    >
+                      Deny
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -225,4 +227,4 @@ const StudentList = () => {
   );
 };
 
-export default StudentList;
+export default App;

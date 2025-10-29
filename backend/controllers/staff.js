@@ -60,6 +60,7 @@ const addUser = expressAsyncHandler(async(req,res)=>{
 });
 
 const attendance= expressAsyncHandler(async(req,res)=>{
+  console.log('attendance called');
   const HandlingClass=req.query.class;
   const department = req.query.department;
   if (!HandlingClass || !department) {
